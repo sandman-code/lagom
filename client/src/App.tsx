@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import { BarLoader } from "react-spinners";
 
-const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app/`;
+const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
 interface Guess {
   guess: string;
   score: number;
@@ -16,7 +16,7 @@ function App() {
 
   const handleFetch = (word: string) => {
     setLoading(true);
-    fetch(`https://lagom-ilcjo546ka-ue.a.run.app/guess/1/${word}`)
+    fetch(`${baseURL}/guess/1/${word}`)
       .then((res) => {
         if (res.status !== 200) {
           res.text().then((message) => setError(message));
