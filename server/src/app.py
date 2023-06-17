@@ -51,7 +51,7 @@ def guess(game, word):
               environment="northamerica-northeast1-gcp")
     
     index = pinecone.Index("lagom")
-    
+ 
     wotd = index.fetch([word_of_the_day])
 
     wotd_values = wotd['vectors'][word_of_the_day]['values']
@@ -74,3 +74,6 @@ def guess(game, word):
         "score": round(cos, 2),
         "isWinner": False
     }
+
+if __name__ == '__main__':
+    app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT',8080)))

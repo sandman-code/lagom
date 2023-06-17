@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./App.css";
+import { BarLoader } from "react-spinners";
 
+const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app/`;
 interface Guess {
   guess: string;
   score: number;
@@ -10,21 +12,25 @@ function App() {
   const [err, setError] = useState<string>("");
   const [guessResponse, setGuessResponse] = useState<Guess[]>([]);
   const [win, setWin] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleFetch = (word: string) => {
-    fetch(`http://127.0.0.1:5000/guess/1/${word}`).then((res) => {
-      if (res.status !== 200) {
-        res.text().then((message) => setError(message));
-      } else {
-        setError("");
-        res.json().then((data) => {
-          if (data.isWinner) {
-            setWin(true);
-          }
-          setGuessResponse([...guessResponse, data]);
-        });
-      }
-    });
+    setLoading(true);
+    fetch(`https://lagom-ilcjo546ka-ue.a.run.app/guess/1/${word}`)
+      .then((res) => {
+        if (res.status !== 200) {
+          res.text().then((message) => setError(message));
+        } else {
+          setError("");
+          res.json().then((data) => {
+            if (data.isWinner) {
+              setWin(true);
+            }
+            setGuessResponse([...guessResponse, data]);
+          });
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -60,6 +66,13 @@ function App() {
           }}
           disabled={win}
         ></input>
+        <div className="text-center m-5 ">
+          {loading ? (
+            <BarLoader height={"0.5rem"} width={"100%"} color={"#ea738d"} />
+          ) : (
+            <div className="h-2"></div>
+          )}
+        </div>
         <div className="m-5"> {err ?? <p>${err}</p>}</div>
 
         <div className="mt-5 mx-auto">
