@@ -26,7 +26,7 @@ function App() {
             if (data.isWinner) {
               setWin(true);
             }
-            setGuessResponse([...guessResponse, data]);
+            setGuessResponse([data, ...guessResponse]);
           });
         }
       })
