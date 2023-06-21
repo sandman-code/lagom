@@ -1,7 +1,7 @@
 import openai
 from google.cloud import firestore
-
-openai.api_key = "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"
+import os
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # The `project` parameter is optional and represents which project the client
 # will act on behalf of. If not supplied, the client falls back to the default
