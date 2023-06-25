@@ -65,7 +65,7 @@ def guess(word):
     wotd_values = wotd["vectors"][wotd_idx]["values"]
 
     query = index.query(vector=wotd_values, filter={
-        "word": {"$eq": word}}, top_k=1)
+        "word": {"$eq": word.lower()}}, top_k=1)
 
     print(query)
 

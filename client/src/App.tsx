@@ -102,7 +102,6 @@ function App() {
             </h2>
             <div className="p-3">
               {riddle.split("\\n").map((i, key) => {
-                console.log(i);
                 return (
                   <p className="riddle" key={key}>
                     {i}
