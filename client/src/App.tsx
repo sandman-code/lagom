@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { BarLoader } from "react-spinners";
 
-const baseURL = `https://flask-fire-ilcjo546ka-ue.a.run.app`;
+const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
 //const baseURL = `http://127.0.0.1:5000`;
 
 interface Guess {
