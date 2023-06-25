@@ -59,6 +59,7 @@ p {
 ol {
   color: var(--peach);
 }
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -76,4 +77,10 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.riddle {
+  color: #ea738d;
+  font-family: "Germania One", cursive;
+  font-size: 1.25em;
 }

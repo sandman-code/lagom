@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { BarLoader } from "react-spinners";
 
 const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
+//const baseURL = `http://127.0.0.1:5000`;
+
 interface Guess {
   guess: string;
   score: number;
@@ -13,10 +15,26 @@ function App() {
   const [guessResponse, setGuessResponse] = useState<Guess[]>([]);
   const [win, setWin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [riddle, setRiddle] = useState<string>("");
+
+  const day = new Date();
+
+  useEffect(() => {
+    fetch(`${baseURL}/riddle`).then((res) => {
+      if (res.status !== 200) {
+        setError("Unable to fetch riddle. Is the world ending?");
+      } else {
+        setError("");
+        res.json().then((data) => {
+          setRiddle(data.riddle);
+        });
+      }
+    });
+  }, []);
 
   const handleFetch = (word: string) => {
     setLoading(true);
-    fetch(`${baseURL}/guess/1/${word}`)
+    fetch(`${baseURL}/game/${word}`)
       .then((res) => {
         if (res.status !== 200) {
           res.text().then((message) => setError(message));
@@ -44,7 +62,7 @@ function App() {
   return (
     <>
       <div className="m-auto">
-        <h1 className="text-center m-10 font-bold underline">Lagom</h1>
+        <h1 className="text-center m-10 font-bold underline">lagom</h1>
       </div>
       <div className="text-center">
         <button
@@ -66,20 +84,46 @@ function App() {
           }}
           disabled={win}
         ></input>
-        <div className="text-center m-5 ">
+        <div className="text-center mt-5 mb-2">
           {loading ? (
             <BarLoader height={"0.5rem"} width={"100%"} color={"#ea738d"} />
           ) : (
             <div className="h-2"></div>
           )}
         </div>
-        <div className="m-5"> {err ?? <p>${err}</p>}</div>
 
+        {riddle ? (
+          <div>
+            <h2
+              className="underline mb-2"
+              style={{ fontFamily: "Germania One, cursive" }}
+            >
+              {day.toLocaleDateString()}
+            </h2>
+            <div className="p-3">
+              {riddle.split("\\n").map((i, key) => {
+                console.log(i);
+                return (
+                  <p className="riddle" key={key}>
+                    {i}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
+
+        <div className="m-5"> {err ?? <p>${err}</p>}</div>
         <div className="mt-5 mx-auto">
           {guessResponse.length == 0 ? (
             <>
               <h2 className="underline">How to play:</h2>
               <ol className="p-5 list-decimal">
+                <li>
+                  The answer to the riddle is always <u>one word</u>
+                </li>
                 <li>Enter a word and see how close you are</li>
                 <li>A Number will represent how close you are</li>
                 <li>Scores will range from 0-1</li>
