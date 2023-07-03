@@ -125,7 +125,7 @@ function App() {
                 </li>
                 <li>Enter a word and see how close you are</li>
                 <li>A Number will represent how close you are</li>
-                <li>Scores will range from 0-100</li>
+                <li>Scores will range from 0 - 100</li>
                 <li>Greener = Better</li>
                 <li>Click reset to clear guesses</li>
               </ol>
@@ -149,9 +149,9 @@ const colors = ["#ff477e", "#6b9080"];
 
 const GuessCard = ({ guess, score }: Guess) => {
   const interpolate = (start: number[], end: number[], ratio: number) => {
-    const r = Math.trunc(ratio * end[0] + ((1 - ratio) * start[0]) / 100);
-    const g = Math.trunc(ratio * end[1] + ((1 - ratio) * start[1]) / 100);
-    const b = Math.trunc(ratio * end[2] + ((1 - ratio) * start[2]) / 100);
+    const r = Math.trunc(ratio * end[0] + (1 - ratio) * (start[0] / 100));
+    const g = Math.trunc(ratio * end[1] + (1 - ratio) * (start[1] / 100));
+    const b = Math.trunc(ratio * end[2] + (1 - ratio) * (start[2] / 100));
     return [r, g, b];
   };
 
