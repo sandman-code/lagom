@@ -3,8 +3,8 @@ import "./App.css";
 import { BarLoader } from "react-spinners";
 import { Box, Modal } from "@mui/material";
 
-const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
-//const baseURL = `http://127.0.0.1:5000`;
+//const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
+const baseURL = `http://127.0.0.1:5000`;
 
 interface Guess {
   guess: string;
@@ -17,6 +17,7 @@ function App() {
   const [win, setWin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [riddle, setRiddle] = useState<string>("");
+  const [attempt, setAttempt] = useState<number>(1);
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -37,6 +38,7 @@ function App() {
   };
 
   useEffect(() => {
+    setError("");
     handleOpen();
     fetch(`${baseURL}/riddle`).then((res) => {
       if (res.status !== 200) {
@@ -94,6 +96,34 @@ function App() {
       .finally(() => setLoading(false));
   };
 
+  const handleHint = () => {
+    if (attempt <= 3) {
+      console.log("here");
+      setLoading(true);
+      fetch(`${baseURL}/hint/${attempt}`)
+        .then((res) => {
+          if (res.status !== 200) {
+            res.text().then((message) => setError(message));
+          } else {
+            setError("");
+            res.json().then((data) => {
+              if (data.isWinner) {
+                setWin(true);
+              }
+              setGuessResponse([data, ...guessResponse]);
+            });
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+          setAttempt(attempt + 1);
+        });
+    } else {
+      setError("All hints used");
+      return;
+    }
+  };
+
   return (
     <>
       <Modal
@@ -109,8 +139,10 @@ function App() {
           <h2 className="mb-2 underline"> What's New?</h2>
           <ul className="mb-2 list-disc p-5">
             <li>Better word vectorization</li>
-            <li>Give up button</li>
+            <li>Better metric to calculate word meanings</li>
             <li>Color scaling fixed</li>
+            <li>You can recieve 3 hints</li>
+            <li>Give up button</li>
           </ul>
           <p>More features coming soon!</p>
         </Box>
@@ -120,7 +152,7 @@ function App() {
         <h1 className="text-center m-10 font-bold underline">lagom</h1>
       </div>
       <div className="w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 m-auto">
-        <div className="grid gap-2 text-center grid-cols-2">
+        <div className="grid gap-2 text-center grid-cols-3">
           <button
             onClick={() => {
               setGuessResponse([]);
@@ -136,9 +168,13 @@ function App() {
           >
             Give up
           </button>
-          {/*
-          <button className="text-center mb-5 font-bold text-xs">Hint</button>
-          */}
+
+          <button
+            className="text-center mb-5 font-bold text-xs"
+            onClick={() => handleHint()}
+          >
+            Hint
+          </button>
         </div>
       </div>
 

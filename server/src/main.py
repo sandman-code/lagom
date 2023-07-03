@@ -86,11 +86,35 @@ def guess(word):
     if len(matches) == 0:
         return make_response("Unable to find word. Please try another!", 500)
     else:
-        values = matches[0]['values']
-        score = euclidean(wotd_values, values)
+        score = matches[0]['score']
         return {"guess": word.lower(), "score": round(100 - score, 2), "isWinner": isWinner}
 
+@app.route("/hint/<int:attempt>")
+def hint(attempt):
+    PINECONE_API_KEY = os.environ["PINECONE_API_KEY"]
+
+    pinecone.init(api_key=PINECONE_API_KEY,
+                  environment="northamerica-northeast1-gcp")
+
+    index = pinecone.Index("lagom")
+
+    doc_ref = db.collection("game")
+    document = doc_ref.document("current").get().to_dict()
+    word_of_the_day = document['answer']
+    wotd_idx = document['index']
+
+    wotd = index.fetch(ids=[wotd_idx])
+    wotd_values = wotd["vectors"][wotd_idx]["values"]
+
+    query = index.query(vector=wotd_values, top_k=4, include_metadata=True)
+    matches = query['matches']
+    print(matches)
+    match = matches[4-attempt]
+    
+    word = match['metadata']['word']
+    score = match['score']
+    return {"guess": word.lower(), "score": round(100 - score, 2), "isWinner": False}
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1",
+    app.run(debug=True, host="12s7.0.0.1",
             port=int(os.environ.get("PORT", 8080)))
