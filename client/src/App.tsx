@@ -3,8 +3,8 @@ import "./App.css";
 import { BarLoader } from "react-spinners";
 import { Box, Modal } from "@mui/material";
 
-//const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
-const baseURL = `http://127.0.0.1:5000`;
+const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
+//const baseURL = `http://127.0.0.1:5000`;
 
 interface Guess {
   guess: string;
