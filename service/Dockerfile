@@ -8,6 +8,7 @@ COPY src/ app/
 WORKDIR /app
 # Install production dependencies.
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install google-cloud-firestore
 RUN pip install gunicorn
 
 ENV PORT 8080

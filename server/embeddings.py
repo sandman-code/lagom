@@ -13,9 +13,12 @@ pinecone.init(api_key=PINECONE_API_KEY,
 openai.api_key = OPENAI_API_KEY
 
 index = pinecone.Index("lagom")
-df = pd.read_csv("../unigram_freq.csv")
+
+'''
+df = pd.read_csv("./unigram_freq.csv")
 df = df.dropna()
 print(len(df))
+'''
 
 
 def get_embedding(words, model="text-embedding-ada-002"):
@@ -57,18 +60,21 @@ def convert_data(chunk):
     'Converts a pandas dataframe to be a simple list of tuples, formatted how the `upsert()` method in the Pinecone Python client expects.'
     data = []
     for i in chunk.to_dict('records'):
-        meta_dict = json.loads(str(i['metadata']))
-        value = meta_dict['word']
+        try:
+            meta_dict = json.loads(str(i['metadata']))
+            value = meta_dict['word']
 
-        value_str = i['values']
-        value_str = value_str[1:]
-        value_str = value_str[:-1]
+            value_str = i['values']
+            value_str = value_str[1:]
+            value_str = value_str[:-1]
 
-        res = [float(idx) for idx in value_str.split(', ')]
-        if 'metadata' in i:
-            data.append((str(i['id']), res, {"word": value}))
-        else:
-            data.append((str(i['id']), i['values']))
+            res = [float(idx) for idx in value_str.split(', ')]
+            if 'metadata' in i:
+                data.append((str(i['id']), res, {"word": value}))
+            else:
+                data.append((str(i['id']), i['values']))
+        except:
+            print(f"Unable to upload word: {str(i['metadata'])}")
     return data
 
 
@@ -76,7 +82,11 @@ def pinecone_upsert():
     embed_df = pd.read_csv("./pinecone_embeddings.csv")
     # print(embed_df.to_dict()['id'])
     count = 0
-    for chunk in chunker(embed_df, 10):
+    for chunk in chunker(embed_df, 100):
         print(count)
         index.upsert(vectors=convert_data(chunk), show_progress=True)
         count = count + 1
+
+
+if __name__ == "__main__":
+    pinecone_upsert()
