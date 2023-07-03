@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { BarLoader } from "react-spinners";
+import { Box, Modal } from "@mui/material";
 
 const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
 //const baseURL = `http://127.0.0.1:5000`;
@@ -16,10 +17,27 @@ function App() {
   const [win, setWin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [riddle, setRiddle] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const day = new Date();
 
+  const style = {
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 350,
+    bgcolor: "#000",
+    border: "2px solid #fff",
+    borderRadius: "20px",
+    boxShadow: 24,
+    p: 4,
+  };
+
   useEffect(() => {
+    handleOpen();
     fetch(`${baseURL}/riddle`).then((res) => {
       if (res.status !== 200) {
         setError("Unable to fetch riddle. Is the world ending?");
@@ -59,25 +77,75 @@ function App() {
     }
   };
 
+  const handleLoss = () => {
+    setLoading(true);
+    fetch(`${baseURL}/giveup`)
+      .then((res) => {
+        if (res.status !== 200) {
+          res.text().then((message) => setError(message));
+        } else {
+          setError("");
+          res.json().then((data) => {
+            setWin(true);
+            setGuessResponse([data, ...guessResponse]);
+          });
+        }
+      })
+      .finally(() => setLoading(false));
+  };
+
   return (
     <>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <div onClick={() => handleClose()} className="cursor-pointer">
+            <p className="text-right">X</p>
+          </div>
+          <h2 className="mb-2 underline"> What's New?</h2>
+          <ul className="mb-2 list-disc p-5">
+            <li>Better word vectorization</li>
+            <li>Give up button</li>
+            <li>Color scaling fixed</li>
+          </ul>
+          <p>More features coming soon!</p>
+        </Box>
+      </Modal>
+
       <div className="m-auto">
         <h1 className="text-center m-10 font-bold underline">lagom</h1>
       </div>
-      <div className="text-center">
-        <button
-          onClick={() => {
-            setGuessResponse([]);
-            setWin(false);
-          }}
-          className="text-center mb-5 font-bold underline"
-        >
-          {win ? "You Win! Play again?" : "Reset"}
-        </button>
+      <div className="w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 m-auto">
+        <div className="grid gap-2 text-center grid-cols-2">
+          <button
+            onClick={() => {
+              setGuessResponse([]);
+              setWin(false);
+            }}
+            className="text-center mb-5 font-bold  text-xs"
+          >
+            {win ? "You Win! Play again?" : "Reset"}
+          </button>
+          <button
+            className="text-center mb-5 font-bold text-xs"
+            onClick={() => handleLoss()}
+          >
+            Give up
+          </button>
+          {/*
+          <button className="text-center mb-5 font-bold text-xs">Hint</button>
+          */}
+        </div>
       </div>
+
       <div className="m-auto w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4">
         <input
           className="w-full p-3 h-10 rounded-md"
+          enterKeyHint="go"
           placeholder="Guess Here"
           onKeyPress={(e) => {
             handleEnter(e);
@@ -123,11 +191,15 @@ function App() {
                 <li>
                   The answer to the riddle is always <u>one word</u>
                 </li>
+                <li>
+                  Riddles can range from being obvious to tricky. Nothing is off
+                  the table!
+                </li>
                 <li>Enter a word and see how close you are</li>
-                <li>A Number will represent how close you are</li>
                 <li>Scores will range from 0 - 100</li>
-                <li>Greener = Better</li>
+                <li>The higher the score the closer you are</li>
                 <li>Click reset to clear guesses</li>
+                <li>Click give up if you can't get it</li>
               </ol>
             </>
           ) : (
@@ -145,7 +217,7 @@ function App() {
   );
 }
 
-const colors = ["#ff477e", "#6b9080"];
+const colors = ["#ff477e", "#5FA777"];
 
 const GuessCard = ({ guess, score }: Guess) => {
   const interpolate = (start: number[], end: number[], ratio: number) => {

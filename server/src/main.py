@@ -29,6 +29,13 @@ User enters word
 """
 
 
+def euclidean(a, b):
+    sum = 0
+    for i in range(0, len(a)):
+        sum += (a[i] - b[i])**2
+    return sum
+
+
 @app.route("/")
 def hello_world():
     return "<h1>Lagom Health Check</h1>"
@@ -43,16 +50,24 @@ def get_riddle():
     return {"riddle": riddle}
 
 
+@app.route("/giveup")
+def give_up():
+    doc_ref = db.collection("game")
+    document = doc_ref.document("current").get().to_dict()
+    word_of_the_day = document['answer']
+    return {"guess": word_of_the_day.lower(), "score": 100, "isWinner": True}
+
+
 @app.route("/game/<word>")
 def guess(word):
-
+    isWinner = False
     doc_ref = db.collection("game")
     document = doc_ref.document("current").get().to_dict()
     word_of_the_day = document['answer']
     wotd_idx = document['index']
 
     if word == word_of_the_day:
-        return {"guess": word.lower(), "score": 1, "isWinner": True}
+        isWinner = True
 
     PINECONE_API_KEY = os.environ["PINECONE_API_KEY"]
 
@@ -65,16 +80,15 @@ def guess(word):
     wotd_values = wotd["vectors"][wotd_idx]["values"]
 
     query = index.query(vector=wotd_values, filter={
-        "word": {"$eq": word.lower()}}, top_k=1)
-
-    print(query)
+        "word": {"$eq": word.lower()}}, top_k=1, include_values=True)
 
     matches = query['matches']
     if len(matches) == 0:
         return make_response("Unable to find word. Please try another!", 500)
     else:
-        score = matches[0]['score']
-        return {"guess": word.lower(), "score": round(score, 2), "isWinner": False}
+        values = matches[0]['values']
+        score = euclidean(wotd_values, values)
+        return {"guess": word.lower(), "score": round(100 - score, 2), "isWinner": isWinner}
 
 
 if __name__ == "__main__":
