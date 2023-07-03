@@ -149,9 +149,9 @@ const colors = ["#ff477e", "#6b9080"];
 
 const GuessCard = ({ guess, score }: Guess) => {
   const interpolate = (start: number[], end: number[], ratio: number) => {
-    const r = Math.trunc(ratio * end[0] + (1 - ratio) * (start[0] / 100));
-    const g = Math.trunc(ratio * end[1] + (1 - ratio) * (start[1] / 100));
-    const b = Math.trunc(ratio * end[2] + (1 - ratio) * (start[2] / 100));
+    const r = Math.trunc(ratio * end[0] + (1 - ratio) * start[0]);
+    const g = Math.trunc(ratio * end[1] + (1 - ratio) * start[1]);
+    const b = Math.trunc(ratio * end[2] + (1 - ratio) * start[2]);
     return [r, g, b];
   };
 
@@ -170,7 +170,7 @@ const GuessCard = ({ guess, score }: Guess) => {
       })
       .join("");
 
-  let ratio = score;
+  let ratio = score / 100;
   if (score < 0) {
     ratio = 0;
   }
