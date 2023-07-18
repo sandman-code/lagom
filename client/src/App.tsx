@@ -3,8 +3,8 @@ import "./App.css";
 import { BarLoader } from "react-spinners";
 import { Box, Modal } from "@mui/material";
 
-const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
-//const baseURL = `http://127.0.0.1:5000`;
+//const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
+const baseURL = `http://127.0.0.1:5000`;
 
 interface Guess {
   guess: string;
@@ -12,6 +12,11 @@ interface Guess {
   isWinner: boolean;
 }
 function App() {
+  const initialGuess = {
+    guess: "",
+    score: -Infinity,
+    isWinner: false,
+  };
   const [err, setError] = useState<string>("");
   const [guessResponse, setGuessResponse] = useState<Guess[]>([]);
   const [win, setWin] = useState<boolean>(false);
@@ -21,6 +26,7 @@ function App() {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [bestGuess, setBestGuess] = useState<Guess>(initialGuess);
 
   const day = new Date();
 
@@ -38,18 +44,21 @@ function App() {
   };
 
   useEffect(() => {
+    setLoading(true);
     setError("");
     handleOpen();
-    fetch(`${baseURL}/riddle`).then((res) => {
-      if (res.status !== 200) {
-        setError("Unable to fetch riddle. Is the world ending?");
-      } else {
-        setError("");
-        res.json().then((data) => {
-          setRiddle(data.riddle);
-        });
-      }
-    });
+    fetch(`${baseURL}/riddle`)
+      .then((res) => {
+        if (res.status !== 200) {
+          setError("Unable to fetch riddle. Is the world ending?");
+        } else {
+          setError("");
+          res.json().then((data) => {
+            setRiddle(data.riddle);
+          });
+        }
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleFetch = (word: string) => {
@@ -64,6 +73,10 @@ function App() {
             if (data.isWinner) {
               setWin(true);
             }
+            if (data.score > bestGuess.score) {
+              setBestGuess(data);
+            }
+
             setGuessResponse([data, ...guessResponse]);
           });
         }
@@ -89,6 +102,7 @@ function App() {
           setError("");
           res.json().then((data) => {
             setWin(true);
+            setBestGuess(data);
             setGuessResponse([data, ...guessResponse]);
           });
         }
@@ -109,6 +123,9 @@ function App() {
             res.json().then((data) => {
               if (data.isWinner) {
                 setWin(true);
+              }
+              if (data.score > bestGuess.score) {
+                setBestGuess(data);
               }
               setGuessResponse([data, ...guessResponse]);
             });
@@ -138,11 +155,9 @@ function App() {
           </div>
           <h2 className="mb-2 underline"> What's New?</h2>
           <ul className="mb-2 list-disc p-5">
-            <li>Better word vectorization</li>
-            <li>Better metric to calculate word meanings</li>
-            <li>Color scaling fixed</li>
-            <li>You can recieve 3 hints</li>
-            <li>Give up button</li>
+            <li>Best guess is held at the top</li>
+            <li>Loader bar for riddle</li>
+            <li>Feel free to buy me a coffee!</li>
           </ul>
           <p>More features coming soon!</p>
         </Box>
@@ -155,6 +170,7 @@ function App() {
         <div className="grid gap-2 text-center grid-cols-3">
           <button
             onClick={() => {
+              setBestGuess(initialGuess);
               setGuessResponse([]);
               setWin(false);
             }}
@@ -219,6 +235,18 @@ function App() {
         )}
 
         <div className="m-5"> {err ?? <p>${err}</p>}</div>
+        {bestGuess.guess ? (
+          <div className="border-solid border-2 rounded-lg p-1">
+            <GuessCard
+              guess={bestGuess.guess}
+              score={bestGuess.score}
+              isWinner={bestGuess.isWinner}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
+
         <div className="mt-5 mx-auto">
           {guessResponse.length == 0 ? (
             <>
@@ -227,6 +255,7 @@ function App() {
                 <li>
                   The answer to the riddle is always <u>one word</u>
                 </li>
+                <li>Your best guess will be highlighted at the top</li>
                 <li>
                   Riddles can range from being obvious to tricky. Nothing is off
                   the table!
@@ -240,11 +269,13 @@ function App() {
             </>
           ) : (
             guessResponse.map((guess) => (
-              <GuessCard
-                guess={guess.guess}
-                score={guess.score}
-                isWinner={guess.isWinner}
-              />
+              <div className="mb-1">
+                <GuessCard
+                  guess={guess.guess}
+                  score={guess.score}
+                  isWinner={guess.isWinner}
+                />
+              </div>
             ))
           )}
         </div>
@@ -292,7 +323,7 @@ const GuessCard = ({ guess, score }: Guess) => {
   return (
     <div
       style={{ backgroundColor: `${color}` }}
-      className="flex justify-between p-3 mb-2 border rounded-md border-black"
+      className="flex justify-between p-3 border rounded-md border-black"
     >
       <p style={{ color: "black" }}>{guess}</p>
       <p style={{ color: "black" }}>{score}</p>
