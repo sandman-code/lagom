@@ -236,7 +236,7 @@ function App() {
 
         <div className="m-5"> {err ?? <p>${err}</p>}</div>
         {bestGuess.guess ? (
-          <div className="border-solid border-2 rounded-lg p-1">
+          <div className="border-solid border-2 rounded-lg p-1 xl:w-full lg:w-full md:w-full sm:w-full w-10/12">
             <GuessCard
               guess={bestGuess.guess}
               score={bestGuess.score}
@@ -268,8 +268,11 @@ function App() {
               </ol>
             </>
           ) : (
-            guessResponse.map((guess) => (
-              <div className="mb-1">
+            guessResponse.map((guess, idx) => (
+              <div
+                key={idx}
+                className="mb-1 xl:w-full lg:w-full md:w-full sm:w-full w-10/12 text-center"
+              >
                 <GuessCard
                   guess={guess.guess}
                   score={guess.score}
