@@ -89,6 +89,7 @@ def guess(word):
         score = matches[0]['score']
         return {"guess": word.lower(), "score": round(100 - score, 2), "isWinner": isWinner}
 
+
 @app.route("/hint/<int:attempt>")
 def hint(attempt):
     PINECONE_API_KEY = os.environ["PINECONE_API_KEY"]
@@ -106,15 +107,20 @@ def hint(attempt):
     wotd = index.fetch(ids=[wotd_idx])
     wotd_values = wotd["vectors"][wotd_idx]["values"]
 
-    query = index.query(vector=wotd_values, top_k=4, include_metadata=True)
+    query = index.query(vector=wotd_values, filter={
+        "word": {"$nin": [word_of_the_day, word_of_the_day[0:-2], word_of_the_day[0:-3]]},
+    },
+        top_k=4,
+        include_metadata=True)
     matches = query['matches']
     print(matches)
     match = matches[4-attempt]
-    
+
     word = match['metadata']['word']
     score = match['score']
     return {"guess": word.lower(), "score": round(100 - score, 2), "isWinner": False}
 
+
 if __name__ == "__main__":
-    app.run(debug=True, host="12s7.0.0.1",
+    app.run(debug=True, host="127.0.0.1",
             port=int(os.environ.get("PORT", 8080)))
