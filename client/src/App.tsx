@@ -144,7 +144,7 @@ function App() {
   return (
     <>
       <Modal
-        open={open}
+        open={!open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
