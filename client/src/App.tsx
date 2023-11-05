@@ -287,42 +287,17 @@ function App() {
   );
 }
 
-const colors = ["#ff477e", "#5FA777"];
+const colors = ["#ea738d", "#f7ce76", "#3CD184"];
 
 const GuessCard = ({ guess, score }: Guess) => {
-  const interpolate = (start: number[], end: number[], ratio: number) => {
-    const r = Math.trunc(ratio * end[0] + (1 - ratio) * start[0]);
-    const g = Math.trunc(ratio * end[1] + (1 - ratio) * start[1]);
-    const b = Math.trunc(ratio * end[2] + (1 - ratio) * start[2]);
-    return [r, g, b];
-  };
-
-  const hexToRgb = (hex: string) => [
-    parseInt(hex.substr(1, 2), 16),
-    parseInt(hex.substr(3, 2), 16),
-    parseInt(hex.substr(5, 2), 16),
-  ];
-
-  const rgbToHex = (rgb: number[]) =>
-    "#" +
-    rgb
-      .map((x) => {
-        const hex = x.toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-      })
-      .join("");
-
-  let ratio = score / 100;
-  if (score < 0) {
-    ratio = 0;
+  let color = colors[0];
+  if (score <= 40) {
+    color = colors[0];
+  } else if (score > 40 && score <= 50) {
+    color = colors[1];
+  } else {
+    color = colors[2];
   }
-  const rgbInterpolated = interpolate(
-    hexToRgb(colors[0]),
-    hexToRgb(colors[1]),
-    ratio
-  );
-
-  const color = rgbToHex(rgbInterpolated);
   return (
     <div
       style={{ backgroundColor: `${color}` }}
