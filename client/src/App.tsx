@@ -3,8 +3,8 @@ import "./App.css";
 import { BarLoader } from "react-spinners";
 import { Box, Modal } from "@mui/material";
 
-const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
-//const baseURL = `http://127.0.0.1:5000`;
+//const baseURL = `https://lagom-ilcjo546ka-ue.a.run.app`;
+const baseURL = `http://127.0.0.1:5000`;
 
 interface Guess {
   guess: string;
@@ -253,7 +253,7 @@ function App() {
               <h2 className="underline">How to play:</h2>
               <ol className="p-5 list-decimal">
                 <li>
-                  The answer to the riddle is always <u>one word</u>
+                  The answer to the riddle is always <u>one noun</u>
                 </li>
                 <li>Your best guess will be highlighted at the top</li>
                 <li>
@@ -291,9 +291,9 @@ const colors = ["#ea738d", "#f7ce76", "#3CD184"];
 
 const GuessCard = ({ guess, score }: Guess) => {
   let color = colors[0];
-  if (score <= 40) {
+  if (score <= 70) {
     color = colors[0];
-  } else if (score > 40 && score <= 50) {
+  } else if (score > 70 && score <= 75) {
     color = colors[1];
   } else {
     color = colors[2];

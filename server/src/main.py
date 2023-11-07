@@ -87,8 +87,8 @@ def guess(word):
         return make_response("Unable to find word. Please try another!", 500)
     else:
         score = matches[0]['score']
-        # 70 is about the average
-        score = (score-0.7)/(1-0.7)
+        # 50 is about the average
+        score = (score-0.4)/(1-0.4)
         return {"guess": word.lower(), "score": round(score * 100, 2), "isWinner": isWinner}
 
 
@@ -120,8 +120,8 @@ def hint(attempt):
 
     word = match['metadata']['word']
     score = match['score']
-    # 70 is about the average
-    score = (score-0.7)/(1-0.7)
+    # 50 is about the average
+    score = (score-0.4)/(1-0.4)
     return {"guess": word.lower(), "score": round(score * 100, 2), "isWinner": False}
 
 
